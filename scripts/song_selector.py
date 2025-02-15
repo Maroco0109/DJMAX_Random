@@ -43,7 +43,8 @@ def select_song():
         min_level = int(min_level_entry.get())
         max_level = int(max_level_entry.get())
     except ValueError:
-        messagebox.showerror("Error", "난이도는 숫자로 입력해주세요.")
+        result_text.delete("1.0", tk.END)
+        result_text.insert(tk.END, "Error: 난이도는 숫자로 입력해주세요.")
         return
 
     # 선택된 패턴 및 SC 여부 가져오기
@@ -53,11 +54,13 @@ def select_song():
     # 선택된 DLC 가져오기
     selected_dlcs = [dlc for dlc, var in dlc_vars.items() if var.get()]
     if not selected_dlcs:
-        messagebox.showerror("Error", "최소 하나의 DLC를 선택해주세요.")
+        result_text.delete("1.0", tk.END)
+        result_text.insert(tk.END, "Error: 최소 하나의 DLC를 선택해주세요.")
         return
 
     if not selected_patterns:
-        messagebox.showerror("Error", "최소 하나의 패턴을 선택해주세요.")
+        result_text.delete("1.0", tk.END)
+        result_text.insert(tk.END, "Error: 최소 하나의 패턴을 선택해주세요.")
         return
 
     # 곡 필터링
@@ -67,6 +70,7 @@ def select_song():
     # 랜덤 곡 선택
     selected_data = random.choice(filtered_songs) if filtered_songs else None
 
+    result_text.delete("1.0", tk.END)
     if selected_data:
         song, pattern, difficulty, level = selected_data
         song_info = (
@@ -76,9 +80,9 @@ def select_song():
             f"버튼: {pattern}\n"
             f"난이도: {difficulty} {level}"
         )
-        messagebox.showinfo("선택된 곡", song_info)
+        result_text.insert(tk.END, song_info)  # 결과를 Text 위젯에 출력
     else:
-        messagebox.showinfo("결과", "조건에 맞는 곡이 없습니다.")
+        result_text.insert(tk.END, "결과: 조건에 맞는 곡이 없습니다.")
 
 # DLC 체크박스 동적으로 생성
 def create_dlc_checkboxes(songs):
@@ -94,7 +98,7 @@ def create_dlc_checkboxes(songs):
 
     # 창 크기 동적으로 조정
     new_width = max(800, 200 + len(dlcs) // num_rows * 150)  # 최소 800px 이상, DLC 수에 따라 확장
-    new_height = max(400, 200 + num_rows * 30)  # 최소 400px 이상, 행 수에 따라 확장
+    new_height = max(450, 200 + num_rows * 30)  # 최소 400px 이상, 행 수에 따라 확장
     root.geometry(f"{new_width}x{new_height}")
 
 # GUI 구성
@@ -102,7 +106,7 @@ root = tk.Tk()
 root.title("DJMax Respect V 랜덤 선택기")
 
 # 레이아웃 설정
-root.geometry("800x500")  # 기본 창 크기
+root.geometry("800x400")  # 기본 창 크기
 root.resizable(True, True)  # 창 크기 조정 가능
 
 # 난이도 입력 필드
@@ -145,8 +149,25 @@ tk.Checkbutton(sc_frame, text="SC 난이도만", variable=sc_var).pack()
 
 # 랜덤 선택 버튼
 button_frame = tk.Frame(root)
-button_frame.pack(pady=20)
+button_frame.pack(pady=10)
 select_button = tk.Button(button_frame, text="랜덤 곡 선택", command=select_song, width=20)
 select_button.pack()
 
+# 결과 표시 텍스트 위젯
+result_frame = tk.Frame(root)
+result_frame.pack(fill="both", padx=10, pady=10)
+
+result_text = tk.Text(
+    result_frame,
+    height=15,  # 기본 세로 길이 (더 크게 설정)
+    wrap="word",
+    font=("Arial", 10),
+    bg="#f9f9f9",
+    fg="#333"
+)
+result_text.pack(fill="both", expand=True, padx=5, pady=5)
+
+scrollbar = tk.Scrollbar(result_frame, command=result_text.yview)
+scrollbar.pack(side="right", fill="y")
+result_text.config(yscrollcommand=scrollbar.set)
 root.mainloop()
