@@ -1,0 +1,14 @@
+# .venv
+.venv/
+
+# assets
+assets/
+
+# build
+build/
+
+# dist
+dist/
+
+# song_selector.spec
+song_selector.spec
