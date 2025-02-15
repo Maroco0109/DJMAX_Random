@@ -2,6 +2,10 @@
 
 디제이맥스 리스펙트 V 곡 랜덤 선택기
 
+### DJMAX Song Info
+
+https://v-archive.net/info/api
+
 1. 환경 세팅
 
 ```bash
