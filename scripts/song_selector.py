@@ -100,13 +100,25 @@ def create_dlc_checkboxes(songs):
     new_width = max(800, 200 + len(dlcs) // num_rows * 150)  # 최소 800px 이상, DLC 수에 따라 확장
     new_height = max(450, 200 + num_rows * 30)  # 최소 400px 이상, 행 수에 따라 확장
     root.geometry(f"{new_width}x{new_height}")
+    
+# 모든 패턴 선택/해제 함수
+def toggle_all_patterns():
+    select_all = pattern_all_var.get()
+    for var in pattern_vars.values():
+        var.set(select_all)
+
+# 모든 DLC 선택/해제 함수
+def toggle_all_dlcs():
+    select_all = dlc_all_var.get()
+    for var in dlc_vars.values():
+        var.set(select_all)
 
 # GUI 구성
 root = tk.Tk()
 root.title("DJMax Respect V 랜덤 선택기")
 
 # 레이아웃 설정
-root.geometry("800x400")  # 기본 창 크기
+root.geometry("850x480")  # 기본 창 크기
 root.resizable(True, True)  # 창 크기 조정 가능
 
 # 난이도 입력 필드
@@ -128,18 +140,36 @@ options_frame.pack(pady=10)
 pattern_frame = tk.LabelFrame(options_frame, text="패턴 선택", padx=10, pady=10)
 pattern_frame.grid(row=0, column=0, padx=10)
 
+# 모든 패턴 선택/해제 체크박스 추가
+pattern_all_var = tk.BooleanVar()
+tk.Checkbutton(pattern_frame, text="모든 패턴 선택/해제", variable=pattern_all_var, command=toggle_all_patterns).grid(row=0, column=0, sticky="w")
+
+# 패턴 선택 변수 정의
 patterns = ["4B", "5B", "6B", "8B"]
 pattern_vars = {pattern: tk.BooleanVar() for pattern in patterns}
 
-for idx, pattern in enumerate(patterns):
+# 개별 패턴 체크박스 추가
+for idx, pattern in enumerate(patterns, start=1):  # 모든 패턴 체크박스 다음 줄부터 시작
     tk.Checkbutton(pattern_frame, text=pattern, variable=pattern_vars[pattern]).grid(row=idx, column=0, sticky="w")
 
 # DLC 체크박스 (우측)
 dlc_frame = tk.LabelFrame(options_frame, text="DLC 선택", padx=10, pady=10)
 dlc_frame.grid(row=0, column=1, padx=10)
-dlc_vars = {}
-songs = fetch_songs()
-create_dlc_checkboxes(songs)
+
+# DLC 선택 변수 정의
+songs = fetch_songs()  # API 호출로 곡 데이터 가져오기
+dlcs = sorted({song["dlc"] for song in songs})  # DLC 목록 추출 및 정렬
+dlc_vars = {dlc: tk.BooleanVar() for dlc in dlcs}
+
+# 모든 DLC 선택/해제 체크박스 추가
+dlc_all_var = tk.BooleanVar()
+tk.Checkbutton(dlc_frame, text="모든 DLC 선택/해제", variable=dlc_all_var, command=toggle_all_dlcs).grid(row=0, column=0, sticky="w", columnspan=5)
+
+# 개별 DLC 체크박스 추가
+for idx, dlc in enumerate(dlcs, start=1):  # 모든 DLC 체크박스 다음 줄부터 시작
+    tk.Checkbutton(dlc_frame, text=dlc, variable=dlc_vars[dlc]).grid(
+        row=idx // 5 + 1, column=idx % 5, sticky="w", padx=5
+    )
 
 # SC 난이도 체크박스
 sc_frame = tk.Frame(root)
